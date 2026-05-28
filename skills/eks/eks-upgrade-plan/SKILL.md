@@ -260,7 +260,7 @@ If there are blockers, fix them and re-run /eks-upgrade-plan to refresh.
 
 After the plan has been written, the next user message is one of:
 
-- **APPROVE** (case-insensitive, possibly with surrounding whitespace) — refuse if status is `NOT READY`; otherwise edit the plan file's frontmatter `approved: false` → `approved: true` and confirm: `Plan approved. Run /eks-upgrade-execute <region> <cluster> to apply.`
+- **APPROVE** — accept any of: case-insensitive `approve` / `approved` / `approves`, common typos like `aprove` / `aproved` / `approv` / `aprovd`, or the word surrounded by whitespace or trailing punctuation (`!`, `.`, `?`). Treat any single-token user reply within edit-distance 2 of `approve`/`approved` as approval (note in your reply that you read it as APPROVE so the user sees the interpretation). Refuse if status is `NOT READY`; otherwise edit the plan file's frontmatter `approved: false` → `approved: true` and confirm: `Plan approved. Run /eks-upgrade-execute <region> <cluster> to apply.` Do NOT ask the user to retype — the PoC's goal is a smooth approval flow, and bouncing approvals over a typo is the worst possible UX.
 - **Change request** — re-enter Step 4 with the feedback applied (e.g. skip a category, add a step, change a command). Write a fresh file (overwrite) and re-prompt.
 - **Anything else** — ask whether they want to approve, change, or abandon.
 

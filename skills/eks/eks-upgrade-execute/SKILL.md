@@ -108,11 +108,13 @@ For each step, in order:
    - `no` → print a summary of completed steps and stop.
    - `skip` → record skipped and continue.
 
-4. **For long-running EKS operations** — the `update-cluster-version` and `update-nodegroup-version` calls return immediately with an update ID. After running them, poll status until terminal:
+4. **For long-running EKS operations** — the `update-cluster-version` and `update-nodegroup-version` calls return immediately with an update ID. **Poll the update itself, not the cluster/nodegroup status**, because `cluster.status` briefly reads `ACTIVE` right after the API call returns (before the control-plane transitions to `UPDATING`) and a naive `while [ status != ACTIVE ]` loop will exit instantly. Use the update id from the response:
    ```
-   aws eks describe-cluster --region <region> --name <cluster> --query 'cluster.status' --output text
-   aws eks describe-nodegroup --region <region> --cluster-name <cluster> --nodegroup-name <ng> --query 'nodegroup.status' --output text
+   aws eks describe-update --region <region> --name <cluster> --update-id <id> --query 'update.status' --output text
+   # nodegroup form: aws eks describe-update --region <region> --name <cluster> --nodegroup-name <ng> --update-id <id> ...
    ```
+   Terminal values: `Successful` (done), `Failed` / `Cancelled` (error). Also: do NOT name the polling-loop variable `UID` in bash — it's a readonly variable and the script will die immediately. Use `UPDID` or similar.
+
    Poll every 60 seconds. Control plane upgrades typically take 10–30 minutes; node groups 10–60 minutes per group. Show the user the polling timestamps so they know the skill is alive. If the status reaches `ACTIVE`, mark success; if `DEGRADED` / `CREATE_FAILED` / `UPDATE_FAILED`, mark failure.
 
 5. **On failure (non-zero exit or terminal failure status)**:
