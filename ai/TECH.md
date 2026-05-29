@@ -14,9 +14,7 @@
 
 ## Architecture
 
-- User invokes `hermes run devops-agent` from their shell — Hermes loads this repo as an agent bundle.
 - Bundle exposes two skills as slash commands: `/eks-upgrade-plan` and `/eks-upgrade-execute`.
-- Each skill is a markdown prompt that instructs the LLM to shell out (aws, kubectl, helm, eksctl), reason over the raw output, and produce/consume a plan file.
 - `/eks-upgrade-plan` writes a markdown plan to `./.plan/eks-upgrade/<cluster>-<target>.md`; user types `APPROVE` in chat to mark it executable.
 - `/eks-upgrade-execute` reads the approved plan and drives the upgrade step-by-step, calling rollback paths on failure where supported.
 - AWS credentials are inherited from the invoking shell; no secrets in the bundle.
